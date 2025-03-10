@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       publish_docker:
-        description: "Publish image to ghcr.io/netcracker/qubership-cassandra-operator"
+        description: "Publish image to ghcr.io/netcracker/qubership-cassandra-supplementary"
         type: boolean
         default: false
         required: false
@@ -27,10 +27,10 @@ jobs:
       fail-fast: false
       matrix:
         component:
-          - name: qubership-cassandra-operator
+          - name: qubership-cassandra-supplementary
             file: Dockerfile
             context: ""
-          - name: qubership-cassandra-operator-transfer
+          - name: qubership-cassandra-supplementary-transfer
             file: docker-transfer/Dockerfile
             context: ""
     runs-on: ubuntu-24.04

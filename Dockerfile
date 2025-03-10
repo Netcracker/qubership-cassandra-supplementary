@@ -16,6 +16,9 @@ ARG TARGETOS TARGETARCH
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o ./build/_output/bin/cassandra-services \
     -gcflags all=-trimpath=${GOPATH} -asmflags all=-trimpath=${GOPATH} ./main.go
 
+RUN mkdir -p deployments/charts/cassandra-services && \
+cp -R ./charts/helm/cassandra-services/* deployments/charts/cassandra-services/ && \
+cp ./charts/helm/cassandra-services/deployment-configuration.json deployments/deployment-configuration.json
 
 FROM alpine:3.17.3
 
@@ -26,7 +29,7 @@ ENV OPERATOR=/usr/local/bin/cassandra-services \
 RUN echo 'https://dl-cdn.alpinelinux.org/alpine/v3.17/main/' > /etc/apk/repositories \
     && apk add --no-cache openssl curl
 
-COPY bin/cassandra-services ${OPERATOR}
+COPY --from=builder /workspace/build/_output/bin/cassandra-services ${OPERATOR}
 COPY build/bin /usr/local/bin
 # COPY sf-class2-root.crt /usr
 
