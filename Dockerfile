@@ -20,13 +20,13 @@ RUN mkdir -p deployments/charts/cassandra-services && \
 cp -R ./charts/helm/cassandra-services/* deployments/charts/cassandra-services/ && \
 cp ./charts/helm/cassandra-services/deployment-configuration.json deployments/deployment-configuration.json
 
-FROM alpine:3.17.3
+FROM alpine:3.20.3
 
 ENV OPERATOR=/usr/local/bin/cassandra-services \
     USER_UID=1001 \
     USER_NAME=cassandra-services
 
-RUN echo 'https://dl-cdn.alpinelinux.org/alpine/v3.17/main/' > /etc/apk/repositories \
+RUN echo 'https://dl-cdn.alpinelinux.org/alpine/v3.20/main/' > /etc/apk/repositories \
     && apk add --no-cache openssl curl
 
 COPY --from=builder /workspace/build/_output/bin/cassandra-services ${OPERATOR}
