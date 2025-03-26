@@ -89,6 +89,13 @@ help: ## Display this help.
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=charts/helm/cassandra-services/crds
 
+##@ gzip grafana json
+
+.PHONY: gzip-charts
+gzip-charts:
+	@echo "Gzipping grafana resources"
+	gzip -f -c ./charts/helm/cassandra-services/monitoring/grafana-dashboard.json > ./charts/helm/cassandra-services/monitoring/grafana-dashboard.json.gz
+
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
