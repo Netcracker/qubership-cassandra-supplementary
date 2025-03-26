@@ -10,7 +10,6 @@ metadata:
   annotations:
 spec:
   name: cassandra-{{ .Release.Namespace }}.json
-  json: >
-{{ .Files.Get "monitoring/grafana-dashboard.json" | indent 4 }}
+  gzipJson:  {{ .Files.Get "monitoring/grafana-dashboard.json.gz" | b64enc | quote }}
 {{ end }}
 {{ end }}
