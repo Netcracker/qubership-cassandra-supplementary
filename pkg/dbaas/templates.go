@@ -14,7 +14,7 @@ func DbaasDeploymentTemplate(namespace string,
 	resources v1.ResourceRequirements,
 	env []v1.EnvVar,
 	port int32,
-	affinity v1.Affinity) *v12.Deployment {
+	affinity *v1.Affinity) *v12.Deployment {
 
 	var replicas int32 = 1
 	allowPrivilegeEscalation := false
@@ -95,7 +95,7 @@ func DbaasDeploymentTemplate(namespace string,
 						},
 					},
 					NodeSelector: nodeSelector,
-					Affinity:     affinity,
+					Affinity:     &affinity,
 					Volumes: []v1.Volume{
 						{
 							Name: "dbaas-physical-databases-labels-mount",
