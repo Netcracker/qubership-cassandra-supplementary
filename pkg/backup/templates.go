@@ -118,45 +118,6 @@ func LegacyBackupDeploymentTemplate(pvcName string, namespace string,
 			},
 		}
 	}
-	podSpec := v1.PodSpec{
-		Containers: []v1.Container{
-			v1.Container{
-				Name:  utils.BackupDaemon,
-				Image: image,
-				SecurityContext: &v1.SecurityContext{
-					Capabilities: &v1.Capabilities{
-						Drop: []v1.Capability{"ALL"},
-					},
-					AllowPrivilegeEscalation: &allowPrivilegeEscalation,
-				},
-				Ports: []v1.ContainerPort{
-					v1.ContainerPort{
-						Name:          "http",
-						ContainerPort: port,
-						Protocol:      "TCP",
-					},
-				},
-				Env:       env,
-				Resources: resources,
-				VolumeMounts: []v1.VolumeMount{
-					v1.VolumeMount{
-						Name:      storage,
-						MountPath: storageDirectory,
-					},
-				},
-			},
-		},
-		NodeSelector: nodeSelector,
-		Volumes: []v1.Volume{
-			{
-				Name:         storage,
-				VolumeSource: volumeSource,
-			},
-		},
-	}
-	if affinity != nil {
-		podSpec.Affinity = affinity
-	}
 
 	allowPrivilegeEscalation := false
 	dc := &v12.Deployment{
@@ -181,7 +142,43 @@ func LegacyBackupDeploymentTemplate(pvcName string, namespace string,
 						utils.Name: utils.BackupDaemon,
 					},
 				},
-				Spec: podSpec,
+				Spec: v1.PodSpec{
+					Containers: []v1.Container{
+						v1.Container{
+							Name:  utils.BackupDaemon,
+							Image: image,
+							SecurityContext: &v1.SecurityContext{
+								Capabilities: &v1.Capabilities{
+									Drop: []v1.Capability{"ALL"},
+								},
+								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+							},
+							Ports: []v1.ContainerPort{
+								v1.ContainerPort{
+									Name:          "http",
+									ContainerPort: port,
+									Protocol:      "TCP",
+								},
+							},
+							Env:       env,
+							Resources: resources,
+							VolumeMounts: []v1.VolumeMount{
+								v1.VolumeMount{
+									Name:      storage,
+									MountPath: storageDirectory,
+								},
+							},
+						},
+					},
+					NodeSelector: nodeSelector,
+					Affinity: affinity,
+					Volumes: []v1.Volume{
+						{
+							Name:         storage,
+							VolumeSource: volumeSource,
+						},
+					},
+				},
 			},
 		},
 	}
