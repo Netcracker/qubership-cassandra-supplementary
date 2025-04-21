@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	cqlMocks "github.com/Netcracker/qubership-cql-driver/mocks"
 	v1 "github.com/Netcracker/qubership-cassandra-supplementary/api/v1alpha1"
 	"github.com/Netcracker/qubership-cassandra-supplementary/pkg"
 	"github.com/Netcracker/qubership-cassandra-supplementary/pkg/utils"
+	cqlMocks "github.com/Netcracker/qubership-cql-driver/mocks"
 	"github.com/Netcracker/qubership-nosqldb-operator-core/pkg/constants"
 	"github.com/Netcracker/qubership-nosqldb-operator-core/pkg/core"
 	mTypes "github.com/Netcracker/qubership-nosqldb-operator-core/pkg/types"

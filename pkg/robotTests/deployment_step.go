@@ -87,7 +87,8 @@ func (r *RobotDeployment) Execute(ctx core.ExecutionContext) error {
 		*robot.Resources,
 		robot.NodeLabels,
 		envs,
-		spec.Spec.RobotTests.Args)
+		spec.Spec.RobotTests.Args,
+		spec.Spec.RobotTests.Affinity)
 
 	err := credsManager.AddCredHashToPodTemplate([]string{spec.Spec.Cassandra.SecretName}, &dc.Spec.Template)
 	if err != nil {

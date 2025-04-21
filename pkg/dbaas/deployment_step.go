@@ -86,7 +86,8 @@ func (r *DbaasDeployment) Execute(ctx core.ExecutionContext) error {
 		dbaas.NodeLabels,
 		*dbaas.Resources,
 		envs,
-		utils.GetHTTPPort(tlsEnabled))
+		utils.GetHTTPPort(tlsEnabled),
+		dbaas.Affinity)
 
 	err := credsManager.AddCredHashToPodTemplate([]string{spec.Spec.Cassandra.SecretName}, &dc.Spec.Template)
 	if err != nil {

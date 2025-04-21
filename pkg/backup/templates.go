@@ -99,7 +99,8 @@ func LegacyBackupDeploymentTemplate(pvcName string, namespace string,
 	env []v1.EnvVar,
 	storageDirectory string,
 	emptyDir bool,
-	port int32) *v12.Deployment {
+	port int32,
+	affinity v1.Affinity) *v12.Deployment {
 	var replicas int32 = 1
 	storage := utils.BackupStorage
 
@@ -116,6 +117,45 @@ func LegacyBackupDeploymentTemplate(pvcName string, namespace string,
 				ClaimName: pvcName,
 			},
 		}
+	}
+	podSpec := v1.PodSpec{
+		Containers: []v1.Container{
+			v1.Container{
+				Name:  utils.BackupDaemon,
+				Image: image,
+				SecurityContext: &v1.SecurityContext{
+					Capabilities: &v1.Capabilities{
+						Drop: []v1.Capability{"ALL"},
+					},
+					AllowPrivilegeEscalation: &allowPrivilegeEscalation,
+				},
+				Ports: []v1.ContainerPort{
+					v1.ContainerPort{
+						Name:          "http",
+						ContainerPort: port,
+						Protocol:      "TCP",
+					},
+				},
+				Env:       env,
+				Resources: resources,
+				VolumeMounts: []v1.VolumeMount{
+					v1.VolumeMount{
+						Name:      storage,
+						MountPath: storageDirectory,
+					},
+				},
+			},
+		},
+		NodeSelector: nodeSelector,
+		Volumes: []v1.Volume{
+			{
+				Name:         storage,
+				VolumeSource: volumeSource,
+			},
+		},
+	}
+	if affinity != nil {
+		podSpec.Affinity = affinity
 	}
 
 	allowPrivilegeEscalation := false
@@ -141,42 +181,7 @@ func LegacyBackupDeploymentTemplate(pvcName string, namespace string,
 						utils.Name: utils.BackupDaemon,
 					},
 				},
-				Spec: v1.PodSpec{
-					Containers: []v1.Container{
-						v1.Container{
-							Name:  utils.BackupDaemon,
-							Image: image,
-							SecurityContext: &v1.SecurityContext{
-								Capabilities: &v1.Capabilities{
-									Drop: []v1.Capability{"ALL"},
-								},
-								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
-							},
-							Ports: []v1.ContainerPort{
-								v1.ContainerPort{
-									Name:          "http",
-									ContainerPort: port,
-									Protocol:      "TCP",
-								},
-							},
-							Env:       env,
-							Resources: resources,
-							VolumeMounts: []v1.VolumeMount{
-								v1.VolumeMount{
-									Name:      storage,
-									MountPath: storageDirectory,
-								},
-							},
-						},
-					},
-					NodeSelector: nodeSelector,
-					Volumes: []v1.Volume{
-						{
-							Name:         storage,
-							VolumeSource: volumeSource,
-						},
-					},
-				},
+				Spec: podSpec,
 			},
 		},
 	}

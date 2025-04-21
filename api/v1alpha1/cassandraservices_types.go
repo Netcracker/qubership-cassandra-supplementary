@@ -133,6 +133,7 @@ type Backup struct {
 	PriorityClassName          string                     `json:"priorityClassName,omitempty"`
 	S3                         S3backup                   `json:"s3,omitempty"`
 	TLS                        BackupDaemonTLS            `json:"tls,omitempty"`
+	Affinity                   *v1.Affinity               `json:"affinity,omitempty"`
 }
 
 type S3backup struct {
@@ -172,6 +173,7 @@ type Dbaas struct {
 	//default topology strategy for keyspaces created via Dbaas. The default values is `"{'class':'SimpleStrategy','replication_factor': 1 }"`. This parameter is ignored if `dbaas.allDCTopologyStrategy` is `true`. The value can be overridden in a request body to Dbaas.
 	TopologyStrategy string          `json:"topologyStrategy,omitempty"`
 	TLS              DbaasAdapterTLS `json:"tls,omitempty"`
+	Affinity         *v1.Affinity    `json:"affinity,omitempty"`
 }
 
 type AWSKeyspaces struct {
@@ -191,6 +193,7 @@ type RobotTests struct {
 	ReplicationFactor int                      `json:"replicationFactor,omitempty"`
 	AttemptsNumber    int                      `json:"attemptsNumber,omitempty"`
 	NodeLabels        map[string]string        `json:"nodeLabels,omitempty"`
+	Affinity          *v1.Affinity             `json:"affinity,omitempty"`
 }
 
 type Monitoring struct {

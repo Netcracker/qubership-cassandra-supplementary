@@ -12,7 +12,8 @@ func RobotTemplate(namespace string,
 	resources v1.ResourceRequirements,
 	nodeSelector map[string]string,
 	env []v1.EnvVar,
-	args []string) *v12.Deployment {
+	args []string,
+	affinity v1.Affinity) *v12.Deployment {
 
 	allowPrivilegeEscalation := false
 	var replicas int32 = 1
@@ -57,6 +58,7 @@ func RobotTemplate(namespace string,
 						},
 					},
 					NodeSelector: nodeSelector,
+					Affinity:     affinity,
 				},
 			},
 		},

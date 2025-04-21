@@ -146,6 +146,9 @@ spec:
     {{- if .Values.dbaas.priorityClassName }}
     priorityClassName: {{ .Values.dbaas.priorityClassName | quote }}
     {{- end }}
+    {{- if .Values.dbaas.affinity }}
+    affinity: {{ .Values.dbaas.affinity | quote }}
+    {{- end }}
     apiVersion: {{ .Values.dbaas.apiVersion }}
     multiUsers: {{ .Values.dbaas.multiUsers }}
     
@@ -208,6 +211,10 @@ spec:
 
     {{- if .Values.backupDaemon.priorityClassName }}
     priorityClassName: {{ .Values.backupDaemon.priorityClassName | quote }}
+    {{- end }}
+
+    {{- if .Values.backupDaemon.affinity }}
+    affinity: {{ .Values.backupDaemon.affinity | quote }}
     {{- end }}
 
     username: {{ .Values.backupDaemon.username | quote }}
@@ -339,6 +346,9 @@ spec:
       {{- range $key, $value := .Values.robotTests.nodeLabels }}
       {{ $key | quote }}: {{ $value | quote }}
       {{- end }}
+    {{- end }}
+    {{- if .Values.robotTests.affinity }}
+    affinity: {{ .Values.robotTests.affinity | quote }}
     {{- end }}
     resources:
       limits:
@@ -473,6 +483,10 @@ spec:
       nodeSelector:
         {{- range $key, $value := .Values.operator.nodeLabels }}
         {{ $key | quote }}: {{ $value | quote }}
+      {{- end }}
+      {{- if .Values.operator.affinity }}
+      affinity:
+        {{- toYaml .Values.operator.affinity | nindent 4 }}
       {{- end }}
       {{- if .Values.tls.enabled }}
       volumes:
