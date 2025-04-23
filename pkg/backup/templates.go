@@ -171,7 +171,7 @@ func LegacyBackupDeploymentTemplate(pvcName string, namespace string,
 						},
 					},
 					NodeSelector: nodeSelector,
-					Affinity:     &affinity,
+					Affinity:     affinity,
 					Volumes: []v1.Volume{
 						{
 							Name:         storage,

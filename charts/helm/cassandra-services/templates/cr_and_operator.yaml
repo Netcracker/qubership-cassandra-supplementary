@@ -147,7 +147,8 @@ spec:
     priorityClassName: {{ .Values.dbaas.priorityClassName | quote }}
     {{- end }}
     {{- if .Values.dbaas.affinity }}
-    affinity: {{ .Values.dbaas.affinity | quote }}
+    affinity:
+      {{- toYaml .Values.dbaas.affinity | nindent 6 }}
     {{- end }}
     apiVersion: {{ .Values.dbaas.apiVersion }}
     multiUsers: {{ .Values.dbaas.multiUsers }}
@@ -214,7 +215,8 @@ spec:
     {{- end }}
 
     {{- if .Values.backupDaemon.affinity }}
-    affinity: {{ .Values.backupDaemon.affinity | quote }}
+    affinity:
+      {{- toYaml .Values.backupDaemon.affinity | nindent 6 }}
     {{- end }}
 
     username: {{ .Values.backupDaemon.username | quote }}
@@ -348,7 +350,8 @@ spec:
       {{- end }}
     {{- end }}
     {{- if .Values.robotTests.affinity }}
-    affinity: {{ .Values.robotTests.affinity | quote }}
+    affinity:
+      {{- toYaml .Values.robotTests.affinity | nindent 6 }}
     {{- end }}
     resources:
       limits:
@@ -486,7 +489,7 @@ spec:
       {{- end }}
       {{- if .Values.operator.affinity }}
       affinity:
-        {{- toYaml .Values.operator.affinity | nindent 4 }}
+        {{- toYaml .Values.operator.affinity | nindent 8 }}
       {{- end }}
       {{- if .Values.tls.enabled }}
       volumes:
