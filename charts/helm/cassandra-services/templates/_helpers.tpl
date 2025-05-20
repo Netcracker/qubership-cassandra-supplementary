@@ -1,4 +1,130 @@
 {{/*
+[NoSQL Operator Core] Vault secret template
+Arguments:
+Dictionary with:
+1. "vlt" - .vaultRegistration section
+2. "secret" section includes next elements:
+    .secretName (required)
+    .password (required)
+    .username (optional)
+    .vaultPasswordPath (optional)
+3. "isInternal" is a required boolean parameter
+Usage example:
+{{template "nosql.core.secret.vault" (dict "vltEnabled" .Values.vaultRegistration "vltPath" "kv_path" "secret" .Values.cassandra )}}
+*/}}
+{{- define "nosql.core.secret.vault" -}}
+{{ $_ := set . "userEnv" "" }}
+{{ $_ := set . "userPass" "" }}
+{{include "nosql.core.secret.vault.fromEnv" $_ }}
+{{- end -}}
+
+{{/*
+[NoSQL Operator Core] Vault secret template
+Arguments:
+Dictionary with:
+1. "vlt" - .vaultRegistration section
+2. "secret" section includes next elements:
+    .secretName (required)
+    .password (required)
+    .username (optional)
+    .vaultPasswordPath (optional)
+3. "isInternal" is a required boolean parameter
+Usage example:
+{{template "nosql.core.secret.vault.fromEnv" (dict "vltEnabled" .Values.vaultRegistration "vltPath" "kv_path" "secret" .Values.cassandra "userEnv" .Values.INFRA_CASSANDRA_USERNAME "passEnv" .Values.INFRA_CASSANDRA_PASSWORD )}}
+*/}}
+{{- define "nosql.core.secret.vault.fromEnv" -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .secret.secretName }}
+  labels:
+    {{ include "cassandra.defaultLabels" .values | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+stringData:
+  {{- if .vltEnabled }}
+    {{- if .secret.vaultPasswordPath }}
+  password: {{ .secret.vaultPasswordPath | quote }}
+    {{- else }}
+        {{- if (.isInternal) }}
+  password: 'vault:{{ .vltPath }}'
+        {{- else }}
+  password: {{ include "fromEnv" (dict "envName" .passEnv "default" .secret.password) | quote }}
+        {{- end }}
+    {{- end }}
+  {{- else }}
+  password: {{ include "fromEnv" (dict "envName" .passEnv "default" .secret.password) | quote }}
+  {{- end }}
+  {{- if .secret.username }}
+  username: {{ include "fromEnv" (dict "envName" .userEnv "default" .secret.username) | quote }} 
+  {{- end }}
+type: Opaque
+{{- end -}}
+
+{{/*
+[NoSQL Operator Core] Internal secret template
+{{template "nosql.core.secret.internal" (dict "vlt" .Values.vaultRegistration "secret" .Values.redis)}}
+*/}}
+{{- define "nosql.core.secret.internal" -}}
+{{include "nosql.core.secret.vault" (set . "isInternal" true)}}
+{{- end -}}
+
+{{/*
+[NoSQL Operator Core] External secret template
+{{template "nosql.core.secret.external" (dict "vlt" .Values.vaultRegistration "secret" .Values.redis)}}
+*/}}
+{{- define "nosql.core.secret.external" -}}
+{{ include "nosql.core.secret.vault" (set . "isInternal" false) }}
+{{- end -}}
+
+{{/*
+[NoSQL Operator Core] PodDisruptionBudget
+Dictionary with:
+1. "name" - pdb name
+2. "labels" - label selectors map
+3. "minAvailable" - desired pods count
+{{template "nosql.core.pdb" (dict "name" "cassandra" "labels" $labels "minAvailable" $minAvailable)}}
+*/}}
+{{- define "nosql.core.pdb" -}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .name | quote }}
+  labels:
+    {{ include "cassandra.defaultLabels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .minAvailable }}
+  selector:
+    matchLabels:
+      {{- range $k, $v := .labels }}
+      {{ $k | quote }}: {{ $v | quote }}
+      {{- end }}
+{{- end -}}
+
+{{/*
+[NoSQL Operator Core] Create the name for service registration in Consul
+Dictionary with:
+1. "name" - the service name
+2. "default" - default name that will be converted to %default%-%namespace% name if the "name" field is empty
+3. "namespace" - namespace for default name
+{{template "nosql.core.consul.serviceName" (dict "name" "cassandra-custom" "default" "cassandra")}}
+*/}}
+{{- define "nosql.core.consul.serviceName" -}}
+  {{ (.name) | default (printf "%s-%s" .namespace .default) }}
+{{- end -}}
+
+
+
+{{- define "deployment.apiVersion" -}}
+  {{- if semverCompare "<1.9-0" .Capabilities.KubeVersion.GitVersion -}}
+    {{- print "apps/v1beta2" -}}
+  {{- else -}}
+    {{- print "apps/v1" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 [Cassandra Operator Core] Docker image
 Dictionary with:
 1. "deployName" - deploy-param from description.yaml
