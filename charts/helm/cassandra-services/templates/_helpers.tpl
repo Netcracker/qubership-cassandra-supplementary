@@ -201,17 +201,15 @@ Dictionary with:
 {{- define "find_image" -}}
   {{- $image := .default -}}
 
-  {{- if .vals.services -}}
-    {{- range .vals.services }}
-      {{- if or (eq .deploy_param $.deployName) (eq .service_name $.deployName) }}
-        {{- if .full_image_name }}
-          {{- $image = .full_image_name }}
-        {{- end }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
+  {{- if .vals.deployDescriptor -}}
+    {{- if index .vals.deployDescriptor .deployName -}}
+      {{- $image = (index .vals.deployDescriptor .deployName "image") -}}
+    {{- else if index .vals.deployDescriptor .SERVICE_NAME -}}
+      {{- $image = (index .vals.deployDescriptor .SERVICE_NAME "image") -}}
+    {{- end -}}
+  {{- end -}}
 
-  {{- printf "%s" $image }}
+  {{ printf "%s" $image }}
 {{- end -}}
 
 
