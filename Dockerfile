@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.23.0-alpine3.20 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.23.3-alpine3.20 AS builder
 
 ENV GOSUMDB=off GOPRIVATE=github.com/Netcracker
 
@@ -17,8 +17,8 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o ./build/_output/
     -gcflags all=-trimpath=${GOPATH} -asmflags all=-trimpath=${GOPATH} ./main.go
 
 RUN mkdir -p deployments/charts/cassandra-services && \
-cp -R ./charts/helm/cassandra-services/* deployments/charts/cassandra-services/ && \
-cp ./charts/helm/cassandra-services/deployment-configuration.json deployments/deployment-configuration.json
+    cp -R ./charts/helm/cassandra-services/* deployments/charts/cassandra-services/ && \
+    cp ./charts/helm/cassandra-services/deployment-configuration.json deployments/deployment-configuration.json
 
 FROM alpine:3.20.3
 
