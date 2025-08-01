@@ -1,16 +1,16 @@
 module github.com/Netcracker/qubership-cassandra-supplementary
 
-go 1.23.0
+go 1.23.10
 
 require (
 	github.com/Netcracker/qubership-cql-driver v0.0.2
-	github.com/Netcracker/qubership-credential-manager v0.0.3
+	github.com/Netcracker/qubership-credential-manager v0.0.6
 	github.com/Netcracker/qubership-nosqldb-operator-core v1.0.7
 	github.com/gocql/gocql v1.6.0
 	github.com/hashicorp/vault/api v1.1.2-0.20210713235431-1fc8af4c041f
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.38.0
 	k8s.io/api v0.30.1
 	k8s.io/apimachinery v0.30.1
 	k8s.io/client-go v0.30.1
@@ -94,9 +94,9 @@ require (
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.12.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/term v0.32.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
