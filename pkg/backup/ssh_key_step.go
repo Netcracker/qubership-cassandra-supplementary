@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Netcracker/qubership-cql-driver"
 	"github.com/Netcracker/qubership-cassandra-supplementary/api/v1alpha1"
 	"github.com/Netcracker/qubership-cassandra-supplementary/pkg/utils"
+	"github.com/Netcracker/qubership-cql-driver"
 
 	"github.com/Netcracker/qubership-nosqldb-operator-core/pkg/constants"
 	"github.com/Netcracker/qubership-nosqldb-operator-core/pkg/core"

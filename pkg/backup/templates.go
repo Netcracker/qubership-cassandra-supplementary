@@ -99,7 +99,8 @@ func LegacyBackupDeploymentTemplate(pvcName string, namespace string,
 	env []v1.EnvVar,
 	storageDirectory string,
 	emptyDir bool,
-	port int32) *v12.Deployment {
+	port int32,
+	affinity *v1.Affinity) *v12.Deployment {
 	var replicas int32 = 1
 	storage := utils.BackupStorage
 
@@ -170,6 +171,7 @@ func LegacyBackupDeploymentTemplate(pvcName string, namespace string,
 						},
 					},
 					NodeSelector: nodeSelector,
+					Affinity:     affinity,
 					Volumes: []v1.Volume{
 						{
 							Name:         storage,
