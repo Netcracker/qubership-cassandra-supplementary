@@ -1,0 +1,15 @@
+{
+  "components": [
+    {
+      "name": "qubership-cassandra-supplementary",
+      "file": "Dockerfile",
+      "context": "."
+    },
+    {
+      "name": "qubership-cassandra-supplementary-transfer",
+      "file": "docker-transfer/Dockerfile",
+      "context": "."
+    }
+  ],
+  "platforms": "linux/amd64,linux/arm64"
+}
