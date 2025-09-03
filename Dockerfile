@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.23.0-alpine3.20 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine3.21 AS builder
 
 ENV GOSUMDB=off GOPRIVATE=github.com/Netcracker
 
@@ -17,16 +17,16 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o ./build/_output/
     -gcflags all=-trimpath=${GOPATH} -asmflags all=-trimpath=${GOPATH} ./main.go
 
 RUN mkdir -p deployments/charts/cassandra-services && \
-cp -R ./charts/helm/cassandra-services/* deployments/charts/cassandra-services/ && \
-cp ./charts/helm/cassandra-services/deployment-configuration.json deployments/deployment-configuration.json
+    cp -R ./charts/helm/cassandra-services/* deployments/charts/cassandra-services/ && \
+    cp ./charts/helm/cassandra-services/deployment-configuration.json deployments/deployment-configuration.json
 
-FROM alpine:3.20.3
+FROM alpine:3.21.4
 
 ENV OPERATOR=/usr/local/bin/cassandra-services \
     USER_UID=1001 \
     USER_NAME=cassandra-services
 
-RUN echo 'https://dl-cdn.alpinelinux.org/alpine/v3.20/main/' > /etc/apk/repositories \
+RUN echo 'https://dl-cdn.alpinelinux.org/alpine/v3.21/main/' > /etc/apk/repositories \
     && apk add --no-cache openssl curl
 
 COPY --from=builder /workspace/build/_output/bin/cassandra-services ${OPERATOR}
