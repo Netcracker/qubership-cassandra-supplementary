@@ -12,7 +12,7 @@ resources:
     namespaced: true
   controller: true
   domain: my.domain
-  group: qubership.org
+  group: netcracker.com
   kind: CassandraSupplService
   path: github.com/Netcracker/qubership-cassandra-supplementary/api/v1alpha1
   version: v1alpha1
