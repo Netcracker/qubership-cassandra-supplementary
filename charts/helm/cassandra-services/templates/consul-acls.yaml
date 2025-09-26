@@ -1,5 +1,5 @@
 {{- if and (.Values.consulRegistration.Enabled) (.Values.consulDiscoverySettings.cassandra.Enabled) }}
-apiVersion: qubership.org/v1alpha1
+apiVersion: netcracker.com/v1alpha1
 kind: ConsulACL
 metadata:
   name: cassandra-consul-acl-config

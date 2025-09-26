@@ -4,7 +4,7 @@ metadata:
   name: cassandra-services
 rules:
 - apiGroups:
-  - qubership.org
+  - netcracker.com
   resources:
   - '*'
   verbs:

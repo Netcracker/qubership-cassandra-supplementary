@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.14.0
   creationTimestamp: null
-  name: cassandrasupplservices.qubership.org
+  name: cassandrasupplservices.netcracker.com
 spec:
-  group: qubership.org
+  group: netcracker.com
   names:
     kind: CassandraSupplService
     listKind: CassandraSupplServiceList
