@@ -355,6 +355,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.operator.podName }}
+  app.kubernetes.io/name: {{ .Values.operator.operatorName }}
+  app.kubernetes.io/part-of: "cassandra-services"
+  app.kubernetes.io/component: "operator"
+  app.kubernetes.io/managed-by: "operator"
+  app.kubernetes.io/managed-by-operator: "cassandra-services-operator"
+  app.kubernetes.io/instance: {{ .Release.Name }}
+  app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+  app.kubernetes.io/technology: "go"
 spec:
   replicas: 1
   selector:
@@ -364,6 +372,14 @@ spec:
     metadata:
       labels:
         name: {{ .Values.operator.podName }}
+        app.kubernetes.io/name: {{ .Values.operator.operatorName }}
+        app.kubernetes.io/part-of: "cassandra-services"
+        app.kubernetes.io/component: "operator"
+        app.kubernetes.io/managed-by: "operator"
+        app.kubernetes.io/managed-by-operator: "cassandra-services-operator"
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/technology: "go"
     spec:
       serviceAccountName: {{ .Values.serviceAccountName }}
       priorityClassName: {{ .Values.operator.priorityClassName | quote }}
