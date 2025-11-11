@@ -355,6 +355,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.operator.podName }}
+  app.kubernetes.io/name: {{ .Values.operator.operatorName }}
+  app.kubernetes.io/part-of: "cassandra-services"
+  app.kubernetes.io/component: "operator"
+  app.kubernetes.io/managed-by: "operator"
+  app.kubernetes.io/managed-by-operator: "cassandra-services-operator"
+  app.kubernetes.io/instance: {{ .Release.Name }}
+  app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+  app.kubernetes.io/technology: "go"
 spec:
   replicas: 1
   selector:
@@ -364,6 +372,14 @@ spec:
     metadata:
       labels:
         name: {{ .Values.operator.podName }}
+        app.kubernetes.io/name: {{ .Values.operator.operatorName }}
+        app.kubernetes.io/part-of: "cassandra-services"
+        app.kubernetes.io/component: "operator"
+        app.kubernetes.io/managed-by: "operator"
+        app.kubernetes.io/managed-by-operator: "cassandra-services-operator"
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/technology: "go"
     spec:
       serviceAccountName: {{ .Values.serviceAccountName }}
       priorityClassName: {{ .Values.operator.priorityClassName | quote }}
@@ -432,6 +448,10 @@ spec:
         - name: {{ .Values.operator.podName }}
           image: {{template "find_image" (dict "deployName" "dockerCassandraService" "SERVICE_NAME" "dockerCassandraService" "vals" .Values "default" .Values.operator.image) }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
+          ports:
+            - name: healthz
+              containerPort: 8081
+              protocol: TCP
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -444,6 +464,22 @@ spec:
             limits:
               cpu: {{ .Values.operator.resources.limits.cpu | quote }}
               memory: {{ .Values.operator.resources.limits.memory }}
+          livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 8081
+              initialDelaySeconds: 15
+              periodSeconds: 20
+              timeoutSeconds: 2
+              failureThreshold: 3
+          readinessProbe:
+              httpGet:
+                path: /readyz
+                port: 8081
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 2
+              failureThreshold: 3
           env:
             - name: HOST_IP
               valueFrom:
