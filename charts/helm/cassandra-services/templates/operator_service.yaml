@@ -4,8 +4,8 @@ metadata:
   name: cassandra-operator
   labels:
     {{- include "cassandra.defaultLabels" . | nindent 4 }}
-    name: {{ .Values.operator.operatorName }}
-    app.kubernetes.io/name: {{ .Values.operator.operatorName }}
+    name: {{ .Values.operator.name }}
+    app.kubernetes.io/name: {{ .Values.operator.name }}
     microservice: cassandra-operator
 spec:
   ports:
