@@ -19,9 +19,15 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	k8type "k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -33,6 +39,8 @@ import (
 	"github.com/Netcracker/qubership-nosqldb-operator-core/pkg/types"
 )
 
+var setupLog = ctrl.Log.WithName("setup")
+
 // CassandraSupplServiceReconciler reconciles a CassandraService object
 type CassandraSupplServiceReconciler struct {
 	client.Client
@@ -43,8 +51,73 @@ type CassandraSupplServiceReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *CassandraSupplServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	err := WaitForCassandraOperatorReady(r.Client, "cassandra-operator", req.Namespace)
+	if err != nil {
+		setupLog.Info("Cassandra Operator is not ready...")
+		return ctrl.Result{RequeueAfter: 15 * time.Second}, nil
+	}
+
 	_ = log.FromContext(ctx)
 	return r.Reconciler.Reconcile(ctx, req)
+}
+
+func WaitForCassandraOperatorReady(k8sClient client.Client, name, namespace string) error {
+	setupLog.Info("Waiting for Cassandra CR to be ready...")
+	ctx := context.Background()
+
+	cassandraGVK := schema.GroupVersionKind{
+		Group:   "netcracker.com",
+		Version: "v1alpha1",
+		Kind:    "CassandraDeployment",
+	}
+
+	return wait.PollUntilContextTimeout(ctx, 5*time.Second, 10*time.Minute, true, func(ctx context.Context) (bool, error) {
+		cassandraCR := &unstructured.Unstructured{}
+		cassandraCR.SetGroupVersionKind(cassandraGVK)
+
+		err := k8sClient.Get(ctx, k8type.NamespacedName{
+			Name:      name,
+			Namespace: namespace,
+		}, cassandraCR)
+		if err != nil {
+			return false, err
+		}
+
+		status, found, err := unstructured.NestedSlice(cassandraCR.Object, "status", "conditions")
+		if !found || err != nil {
+			return false, fmt.Errorf("unable to find status.conditions in CassandraCluster")
+		}
+
+		for _, cond := range status {
+			condMap, ok := cond.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			t, _ := condMap["type"].(string)
+			s, ok := condMap["status"].(bool) // read as bool instead of string
+
+			if !ok {
+				continue
+			}
+
+			switch strings.ToLower(t) {
+			case "successful":
+				if s {
+					setupLog.Info("Cassandra CR status is Successful")
+					return true, nil
+				}
+			case "failed":
+				if s {
+					setupLog.Error(nil, "Cassabdra CR failed")
+					return true, fmt.Errorf("Cassabdra CR failed")
+				}
+			}
+			setupLog.Info("Waiting for Cassabdra CR to be ready", "type", t, "status", s)
+		}
+
+		return false, nil
+	})
 }
 
 // SetupWithManager sets up the controller with the Manager.
