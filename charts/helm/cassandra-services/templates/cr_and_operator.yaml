@@ -132,16 +132,27 @@ spec:
   dbaas:
     install: {{ .Values.dbaas.install }}
     {{- if .Values.dbaas.allDCTopologyStrategy }}
-      {{ $replication := list }}
-      {{- range $dcKey, $dc := .Values.cassandra.deploymentSchema.dataCenters }}
-        {{ $replication = append $replication (printf "'%s':'%v'" $dc.name $dc.replicas) }}  
-      {{- end }}
-      {{- if gt (len $replication) 0}}
-    topologyStrategy: {{ printf "{'class': 'NetworkTopologyStrategy', %s}" (join ", " $replication) | quote }}
-      {{- end }}
-    {{- else }}
-    topologyStrategy: {{ .Values.dbaas.topologyStrategy | quote }}  
+    {{- $replication := list }}
+    {{- range $dcKey, $dc := .Values.cassandra.deploymentSchema.dataCenters }}
+    {{- $replication = append $replication (printf "\"%s\": %v" $dc.name $dc.replicas) }}
     {{- end }}
+    {{- if gt (len $replication) 0 }}
+    topologyStrategy: |
+      {{ printf "{ \"class\": \"NetworkTopologyStrategy\", %s }" (join ", " $replication) }}
+    {{- end }}
+    {{- else }}
+    {{- if gt (len .Values.cassandra.deploymentSchema.dataCenters) 1 }}
+      {{- fail "Default SimpleStrategy cannot be used with more than one dataCenter. Enable dbaas.allDCTopologyStrategy instead." -}}
+    {{- end }}
+    topologyStrategy: |
+      {{- $dc := index .Values.cassandra.deploymentSchema.dataCenters 0 }}
+      {{- $replicas := $dc.replicas | int }}
+      {{- $rf := 1 }}
+      {{- if gt $replicas 1 }}
+        {{- $rf = sub $replicas 1 }}
+      {{- end }}
+      {{ dict "class" "SimpleStrategy" "replication_factor" $rf | toJson }}
+  {{- end }}
     dockerImage: {{template "find_image" (dict "deployName" "dbaas_cassandra" "SERVICE_NAME" "dbaas_cassandra" "vals" .Values "default" .Values.dbaas.dockerImage) }}
     {{- if .Values.dbaas.priorityClassName }}
     priorityClassName: {{ .Values.dbaas.priorityClassName | quote }}
