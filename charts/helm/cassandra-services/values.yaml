@@ -4,8 +4,8 @@
 #
 operator:
   name: operator-service
-  image: to_replace
-  initImage: to_replace
+  image: ghcr.io/netcracker/qubership-cassandra-supplementary:main
+  initImage: ghcr.io/netcracker/qubership-credential-manager:main
   podName: cassandra-services
   priorityClassName:
   resources:
@@ -144,7 +144,7 @@ dbaas:
       additionalIpAddresses: []
 
   # Mandatory docker image link
-  dockerImage: to_replace
+  dockerImage: ghcr.io/netcracker/qubership-cassandra-dbaas-adapter:main
 
   priorityClassName:
 
@@ -192,7 +192,7 @@ backupDaemon:
       additionalIpAddresses: []
 
   # Mandatory docker image link
-  dockerImage: to_replace
+  dockerImage: ghcr.io/netcracker/qubership-cassandra-backup-daemon:main
 
   priorityClassName:
 
@@ -274,7 +274,7 @@ monitoringAgent:
 
 vaultRegistration:
   tokenSecretName: vault-secret-services
-  dockerImage: to_replace
+  dockerImage: banzaicloud/vault-env:1.19.0
   enabled: false
   path: kv
   url:
@@ -291,7 +291,7 @@ vaultRegistration:
 
 robotTests:
   install: false
-  dockerImage: to_replace
+  dockerImage: ghcr.io/netcracker/qubership-cassandra-tests:main
   tags: smokeORdbaas backup
   args:
   - run-robot
